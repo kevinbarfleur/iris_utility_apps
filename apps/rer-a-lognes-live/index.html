@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RER A · Marne-la-Vallée → Lognes</title>
+  <style>
+    :root { --bg:#0b1220; --card:#131d32; --muted:#9bb0d3; --text:#e9f0ff; --ok:#36d399; --warn:#fbbf24; }
+    *{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:linear-gradient(180deg,#0a1120,#111b30);color:var(--text)}
+    .wrap{max-width:860px;margin:0 auto;padding:24px}
+    h1{margin:0 0 8px;font-size:28px}
+    .sub{color:var(--muted);margin-bottom:18px}
+    .card{background:var(--card);border:1px solid #223457;border-radius:14px;padding:16px;margin-bottom:14px}
+    button{background:#1f6feb;border:0;color:#fff;border-radius:10px;padding:10px 14px;font-weight:600;cursor:pointer}
+    button:disabled{opacity:.6;cursor:not-allowed}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:14px}
+    .train{background:#0f1729;border:1px solid #25385e;border-radius:10px;padding:12px}
+    .time{font-size:20px;font-weight:700}
+    .line{font-size:12px;color:var(--muted)}
+    .ok{color:var(--ok)} .warn{color:var(--warn)}
+    code{background:#0f1729;padding:2px 6px;border-radius:6px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Prochains passages RER A à Lognes</h1>
+    <div class="sub">Trajets au départ de <strong>Marne-la-Vallée Chessy</strong> vers Paris (direction A).</div>
+
+    <div class="card">
+      <button id="refresh">Actualiser</button>
+      <span id="status" class="sub" style="margin-left:10px"></span>
+      <div id="result" class="grid"></div>
+    </div>
+
+    <div class="card sub">
+      <div><strong>Source API :</strong> <code>api-ratp.pierre-grimaud.fr</code> (publique, sans clé).</div>
+      <div>Si l'API est indisponible, un message d'erreur s'affiche.</div>
+    </div>
+  </div>
+
+  <script>
+    const statusEl = document.getElementById('status');
+    const resultEl = document.getElementById('result');
+    const btn = document.getElementById('refresh');
+
+    async function fetchSchedules(stationSlug){
+      const url = `https://api-ratp.pierre-grimaud.fr/v4/schedules/rers/a/${stationSlug}/A`;
+      const res = await fetch(url);
+      if(!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      return data?.result?.schedules || [];
+    }
+
+    function parseMinutes(message){
+      const m = /([0-9]{1,2})\s*mn/i.exec(message || '');
+      if (m) return Number(m[1]);
+      if (/à quai|approche|imminent|train à l'approche/i.test(message||'')) return 0;
+      return null;
+    }
+
+    async function refresh(){
+      btn.disabled = true;
+      statusEl.textContent = 'Chargement…';
+      resultEl.innerHTML = '';
+      try{
+        const [fromChessy, atLognes] = await Promise.all([
+          fetchSchedules('marne-la-vallee-chessy'),
+          fetchSchedules('lognes')
+        ]);
+
+        const fromParisBound = fromChessy
+          .filter(s => /paris|la défense|poissy|saint-germain/i.test(s.destination || ''))
+          .slice(0, 8);
+
+        const lognesTimes = atLognes
+          .filter(s => /paris|la défense|poissy|saint-germain/i.test(s.destination || ''))
+          .map(s => ({
+            destination: s.destination,
+            message: s.message,
+            minutes: parseMinutes(s.message)
+          }))
+          .sort((a,b) => (a.minutes ?? 999) - (b.minutes ?? 999))
+          .slice(0, 8);
+
+        if(!lognesTimes.length){
+          statusEl.innerHTML = '<span class="warn">Aucun passage disponible pour le moment.</span>';
+          return;
+        }
+
+        statusEl.innerHTML = `<span class="ok">Mis à jour: ${new Date().toLocaleTimeString('fr-FR')}</span>`;
+
+        resultEl.innerHTML = lognesTimes.map(t => `
+          <div class="train">
+            <div class="time">${t.message || 'N/A'}</div>
+            <div class="line">Direction ${t.destination || 'Paris'}</div>
+          </div>
+        `).join('');
+
+      }catch(err){
+        statusEl.innerHTML = `<span class="warn">Erreur API: ${err.message}</span>`;
+      }finally{
+        btn.disabled = false;
+      }
+    }
+
+    document.getElementById('refresh').addEventListener('click', refresh);
+    refresh();
+    setInterval(refresh, 60000);
+  </script>
+</body>
+</html>
