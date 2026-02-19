@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hello Status</title>
+    <style>
+      body { font-family: Inter, system-ui, Arial; margin: 40px; line-height: 1.5; }
+      .card { max-width: 720px; border: 1px solid #ddd; border-radius: 12px; padding: 20px; }
+      code { background:#f5f5f5; padding:2px 6px; border-radius:6px; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>IRIS Utility App - Hello Status</h1>
+      <p>Mini-app de test prête pour déploiement Netlify.</p>
+      <p id="now"></p>
+      <script>
+        document.getElementById('now').textContent = 'Heure UTC: ' + new Date().toISOString();
+      </script>
+    </div>
+  </body>
+</html>
