@@ -36,3 +36,14 @@ Ce registre est la source de vérité des apps gérées par IRIS.
 - links:
   - PR: https://github.com/kevinbarfleur/iris_utility_apps/pull/3
   - Deploy: https://6996e5a7e14bf1785c5dc3db--iris-utility-apps-portfolio.netlify.app
+
+### 3) rer-a-lognes-live
+- slug: `rer-a-lognes-live`
+- netlify_site: `iris-utility-apps-rer-a-lognes`
+- repo_path: `apps/rer-a-lognes-live`
+- purpose: prochains passages RER A à Lognes (flux vers Paris)
+- last_update_utc: `2026-02-19T16:14:12Z`
+- status: `active`
+- links:
+  - PR: (à créer)
+  - Deploy: (à déployer)
