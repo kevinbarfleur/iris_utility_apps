@@ -25,3 +25,14 @@ Ce registre est la source de vérité des apps gérées par IRIS.
 - links:
   - PR: https://github.com/kevinbarfleur/iris_utility_apps/pull/1
   - Deploy: https://6996e3a56816c9693e12ad15--iris-utility-apps-hello-status.netlify.app
+
+### 2) iris-portfolio
+- slug: `iris-portfolio`
+- netlify_site: `iris-utility-apps-portfolio`
+- repo_path: `apps/iris-portfolio`
+- purpose: portfolio moderne/sobre présentant IRIS et ses capacités
+- last_update_utc: `2026-02-19T10:26:00Z`
+- status: `active`
+- links:
+  - PR: pending
+  - Deploy: pending
